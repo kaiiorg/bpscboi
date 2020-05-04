@@ -11,6 +11,7 @@ class BigPineyScheduleBoi(discord.Client):
     club_schedule_page = 'https://www.tapatalk.com/groups/bigpineysportsmansclub/viewtopic.php?f=14&t=125&view=print'
     last_change_file_name = './last_known_change.txt'
     viewer_diff_file_name = './viewerDiff.json'
+    viewer_url = 'https://bpscboi.notrelatedto.knotlab.org'
     word_regex_string = r'([\w\(\)\.\:\-\/\\\,\@\&\$]+)'
     word_regex = re.compile(word_regex_string)
     next_check_in = 60
@@ -137,7 +138,10 @@ class BigPineyScheduleBoi(discord.Client):
                 try:
                     await self.SendDiscordMessage(discord_diff, edit=False)
                 except IndexError:
-                    await self.SendDiscordMessage('There are new changes, but its too much to show here.', edit=False)
+                    await self.SendDiscordMessage(
+                        'There are new changes, but its too much to show here. ' + 
+                        f'See {self.viewer_url}',
+                        edit=False)
 
     ###############################
     # Discord events
@@ -161,7 +165,6 @@ class BigPineyScheduleBoi(discord.Client):
         print(message.content)
 
         # Skip if the message is from self
-        #if message.author == self.user:
         if self.MessageFromSelf(message):
             print('Message from self, skipping')
             return
@@ -174,7 +177,7 @@ class BigPineyScheduleBoi(discord.Client):
         # ping;
         # Reply with "pong" to confirm that the script is running
         if message.content.startswith('ping;'):
-            print('Ping requested')
+            print('Ping requested. Sending...')
             await message.channel.send('pong')
 
         # channels;
@@ -185,7 +188,7 @@ class BigPineyScheduleBoi(discord.Client):
             await message.channel.send(channels)
 
         # purge;
-        # Delete last messages that the bot has posted
+        # Delete messages that the bot has posted
         if message.content.startswith('purge;'):
             print('Purge of this bot\'s messages requested')
             await self.PurgeSelf(message.channel)

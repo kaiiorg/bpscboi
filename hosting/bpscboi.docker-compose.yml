@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  bpscboi-diff-view:
+    image: nginx:latest
+    #ports:
+    #  - 80:80
+    #  - 443:443
+    volumes:
+      - ./bpscboi.notrelatedto.knotlab.org.prod.conf:/etc/nginx/conf.d/default.conf # nginx config
+      - ./diffviewer:/var/www/website
+      - ./bpscboi/viewerDiff.json:/var/www/website/assets/viewerDiff.json
+    networks:
+      - backend
+
+  bpscboi-bot:
+    image: python:3
+    volumes: 
+      - ./bpscboi:/user/src/bpscboi/
+    # Prevent the container from closing so we can enter it and do some debugging
+    #entrypoint: ["sh", "-c", "sleep infinity"]
+    entrypoint: "/user/src/bpscboi/"
+
+networks:
+  backend:
+    # Network must be manually created with: docker network create backend
+    external: true
