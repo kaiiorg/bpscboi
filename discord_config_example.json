@@ -1,0 +1,8 @@
+{
+    "token": "TotallyNotARealToken",
+    "default_channel": 123,
+    "channels": [
+        321,
+        123
+    ]
+}
