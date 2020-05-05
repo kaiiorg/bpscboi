@@ -16,10 +16,10 @@ services:
   bpscboi-bot:
     image: python:3
     volumes: 
-      - ./bpscboi:/user/src/bpscboi/
+      - ./bpscboi:/usr/src/bpscboi/
     # Prevent the container from closing so we can enter it and do some debugging
     #entrypoint: ["sh", "-c", "sleep infinity"]
-    entrypoint: "/user/src/bpscboi/"
+    entrypoint: "/usr/src/bpscboi/startup.sh"
 
 networks:
   backend:

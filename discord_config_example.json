@@ -4,5 +4,8 @@
     "channels": [
         321,
         123
+    ],
+    "admins": [
+        "kaiiorg"
     ]
 }

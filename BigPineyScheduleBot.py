@@ -37,6 +37,8 @@ class BigPineyScheduleBoi(discord.Client):
                 raise Exception(f'Default channel not found in {self.discord_config_file} file')
             if 'channels' not in self.discord_config:
                 raise Exception(f'Channels not found in {self.discord_config_file} file')
+            if 'admins' not in self.discord_config:
+                raise Exception(f'Admins not found in {self.discord_config_file} file')
 
 
     def LoadOldPage(self):
@@ -161,17 +163,17 @@ class BigPineyScheduleBoi(discord.Client):
         )
 
     async def on_message(self, message):
-        print(f'Message in channel {message.channel}:')
-        print(message.content)
+        #print(f'Message in channel {message.channel}:')
+        #print(message.content)
 
         # Skip if the message is from self
         if self.MessageFromSelf(message):
-            print('Message from self, skipping')
+            #print('Message from self, skipping')
             return
 
-        # Check if the message is in a channel we're configured to ignore
+        # Check if the message is not in a channel we're configured to use
         if message.channel.id not in self.discord_config['channels']:
-            print('Message in channel we\'re configured to ignore, skipping')
+            #print('Message not in a channel we\'re configured to use, skipping')
             return
 
         # ping;
@@ -180,18 +182,27 @@ class BigPineyScheduleBoi(discord.Client):
             print('Ping requested. Sending...')
             await message.channel.send('pong')
 
-        # channels;
-        # Reply with list of channels
-        if message.content.startswith('channels;'):
-            print('Channels have been requested. Sending...')
-            channels = self.GetDiscordChannels()
-            await message.channel.send(channels)
+        # If the user isn't an admin, don't do anything admin related
+        if message.author.name in self.discord_config['admins']:
+            # channels;
+            # Reply with list of channels
+            if message.content.startswith('channels;'):
+                print('Channels have been requested. Sending...')
+                channels = self.GetDiscordChannels()
+                await message.channel.send(channels)
 
-        # purge;
-        # Delete messages that the bot has posted
-        if message.content.startswith('purge;'):
-            print('Purge of this bot\'s messages requested')
-            await self.PurgeSelf(message.channel)
+            # users;
+            # Reply with list of users
+            if message.content.startswith('users;'):
+                print('Users have been requested. Sending...')
+                users = self.GetDiscordUsers()
+                await message.channel.send(users)
+
+            # purge;
+            # Delete messages that the bot has posted
+            if message.content.startswith('purge;'):
+                print('Purge of this bot\'s messages requested')
+                await self.PurgeSelf(message.channel)
 
     ###################################
     # Utility
@@ -214,11 +225,19 @@ class BigPineyScheduleBoi(discord.Client):
             await self.SendDiscordMessage(f'Unable to purge: {e}', edit=False, channel=channel)
 
     def GetDiscordChannels(self):
-        channels = '```\nid: name'
+        channels = '```\nid: name\n'
         for channel in self.get_all_channels():
             channels = f'{channels}{channel.id}: {channel.name}\n'
         channels = f'{channels}```'
         return channels
+
+    def GetDiscordUsers(self):
+        users = '```'
+        for member in self.get_all_members():
+            is_self = self.user == member
+            users = f'{users}{member.name} {is_self}\n'
+        users = f'{users}```'
+        return users
 
     # If channel is set to none, it uses the default channel in the config
     async def SendDiscordMessage(self, message_string, edit=True, channel=None):
